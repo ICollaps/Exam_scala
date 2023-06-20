@@ -5,6 +5,8 @@ import play.api.libs.json.{Json, JsArray, JsValue}
 import scalaj.http.{HttpRequest, HttpOptions, HttpConstants}
 import scalaj.http.Http
 
+
+
 case class Config(limit: Int = 10, keyword: String = "")
 
 case class WikiPage(title: String, words: Int)
@@ -14,7 +16,7 @@ trait HttpUtils {
 }
 
 object HttpUtilsImpl extends HttpUtils {
-  override def parse(url: String): HttpRequest = {
+  def parse(url: String): HttpRequest = {
     Http(url)
   }
 }
@@ -89,4 +91,3 @@ object Main extends App {
     pages.foldLeft(0)((total, page) => total + page.words)
   }
 }
-
