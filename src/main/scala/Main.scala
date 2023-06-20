@@ -5,8 +5,6 @@ import play.api.libs.json.{Json, JsArray, JsValue}
 import scalaj.http.{HttpRequest, HttpOptions, HttpConstants}
 import scalaj.http.Http
 
-
-
 case class Config(limit: Int = 10, keyword: String = "")
 
 case class WikiPage(title: String, words: Int)
@@ -46,7 +44,9 @@ object Main extends App {
     OParser.parse(parser, args, Config())
   }
 
-  def getPages(url: String)(implicit httpUtils: HttpUtils): Either[Int, String] = {
+  def getPages(
+      url: String
+  )(implicit httpUtils: HttpUtils): Either[Int, String] = {
     val result = httpUtils.parse(url).asString
     if (result.code == 200) Right(result.body)
     else Left(result.code)
@@ -71,7 +71,8 @@ object Main extends App {
   }
 
   def formatUrl(keyword: String, limit: Int): String = {
-    val encodedKeyword = s"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=$keyword&srlimit=$limit"
+    val encodedKeyword =
+      s"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=$keyword&srlimit=$limit"
     encodedKeyword
   }
 

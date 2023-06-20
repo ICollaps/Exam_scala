@@ -8,7 +8,8 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.1.0",
 )
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % Test
-
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.11" % "test"
+coverageEnabled := true
 
 scalacOptions ++= Seq(
   "-deprecation",
