@@ -1,12 +1,23 @@
 import scopt.OParser
-import scalaj.http.Http
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import play.api.libs.json.{Json, JsArray, JsValue}
+import scalaj.http.{HttpRequest, HttpOptions, HttpConstants}
+import scalaj.http.Http
 
 case class Config(limit: Int = 10, keyword: String = "")
 
 case class WikiPage(title: String, words: Int)
+
+trait HttpUtils {
+  def parse(url: String): HttpRequest
+}
+
+object HttpUtilsImpl extends HttpUtils {
+  override def parse(url: String): HttpRequest = {
+    Http(url)
+  }
+}
 
 object Main extends App {
   parseArguments(args) match {
@@ -33,16 +44,17 @@ object Main extends App {
     OParser.parse(parser, args, Config())
   }
 
-  def getPages(url: String): Either[Int, String] = {
-    val result = Http(url).asString
+  def getPages(url: String)(implicit httpUtils: HttpUtils): Either[Int, String] = {
+    val result = httpUtils.parse(url).asString
     if (result.code == 200) Right(result.body)
     else Left(result.code)
   }
 
   def run(config: Config): Unit = {
     val url = formatUrl(config.keyword, config.limit)
+    implicit val httpUtils: HttpUtils = HttpUtilsImpl
     getPages(url) match {
-      case Right(body) => 
+      case Right(body: String) =>
         val pages = parseJson(body)
         println(s"Number of pages found: ${pages.length}")
         pages.foreach(page => println(page))
@@ -58,22 +70,23 @@ object Main extends App {
 
   def formatUrl(keyword: String, limit: Int): String = {
     val encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8.toString)
-    "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=%s&srlimit=%d".format(encodedKeyword, limit)
+    s"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=$encodedKeyword&srlimit=$limit"
   }
 
   def parseJson(rawJson: String): Seq[WikiPage] = {
     val json = Json.parse(rawJson)
     val pagesJson = (json \ "query" \ "search").as[JsArray].value
 
-    pagesJson.map(pageJson => 
+    pagesJson.map { pageJson =>
       WikiPage(
         title = (pageJson \ "title").as[String],
         words = (pageJson \ "wordcount").as[Int]
       )
-    )
+    }
   }
 
   def totalWords(pages: Seq[WikiPage]): Int = {
     pages.foldLeft(0)((total, page) => total + page.words)
   }
 }
+
