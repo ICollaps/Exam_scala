@@ -71,8 +71,8 @@ object Main extends App {
   }
 
   def formatUrl(keyword: String, limit: Int): String = {
-    val encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8.toString)
-    s"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=$encodedKeyword&srlimit=$limit"
+    val encodedKeyword = s"https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=$keyword&srlimit=$limit"
+    encodedKeyword
   }
 
   def parseJson(rawJson: String): Seq[WikiPage] = {
