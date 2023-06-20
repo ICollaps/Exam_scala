@@ -13,7 +13,14 @@ object Main extends App {
     val parser = {
       import builder._
       OParser.sequence(
-        programName("WikiStats")
+        programName("WikiStats"),
+        opt[Int]('l', "limit")
+          .action((value, config) => config.copy(limit = value))
+          .text("Limit of the number of pages to retrieve"),
+        arg[String]("<keyword>")
+          .required()
+          .action((value, config) => config.copy(keyword = value))
+          .text("Keyword to search for")
       )
     }
 
