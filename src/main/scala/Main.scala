@@ -46,6 +46,12 @@ object Main extends App {
         val pages = parseJson(body)
         println(s"Number of pages found: ${pages.length}")
         pages.foreach(page => println(page))
+
+        val total = totalWords(pages)
+        println(s"Total number of words across all pages: $total")
+
+        val average = if (pages.nonEmpty) total.toDouble / pages.length else 0
+        println(s"Average number of words per page: $average")
       case Left(errorCode) => println(s"An error occurred: $errorCode")
     }
   }
@@ -65,5 +71,9 @@ object Main extends App {
         words = (pageJson \ "wordcount").as[Int]
       )
     )
+  }
+
+  def totalWords(pages: Seq[WikiPage]): Int = {
+    pages.foldLeft(0)((total, page) => total + page.words)
   }
 }
