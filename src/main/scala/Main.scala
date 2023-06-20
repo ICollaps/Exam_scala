@@ -1,5 +1,5 @@
 import scopt.OParser
-
+import scalaj.http.Http
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -30,7 +30,11 @@ object Main extends App {
     OParser.parse(parser, args, Config())
   }
 
- 
+  def getPages(url: String): Either[Int, String] = {
+    val result = Http(url).asString
+    if (result.code == 200) Right(result.body)
+    else Left(result.code)
+  }
 
   def run(config: Config): Unit = {
     println(config)
