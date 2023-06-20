@@ -44,7 +44,8 @@ object Main extends App {
     getPages(url) match {
       case Right(body) => 
         val pages = parseJson(body)
-        println(pages)
+        println(s"Number of pages found: ${pages.length}")
+        pages.foreach(page => println(page))
       case Left(errorCode) => println(s"An error occurred: $errorCode")
     }
   }
