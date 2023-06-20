@@ -2,8 +2,11 @@ import scopt.OParser
 import scalaj.http.Http
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import play.api.libs.json.{Json, JsArray, JsValue}
 
 case class Config(limit: Int = 10, keyword: String = "")
+
+case class WikiPage(title: String, words: Int)
 
 object Main extends App {
   parseArguments(args) match {
@@ -39,7 +42,9 @@ object Main extends App {
   def run(config: Config): Unit = {
     val url = formatUrl(config.keyword, config.limit)
     getPages(url) match {
-      case Right(body) => println(body)
+      case Right(body) => 
+        val pages = parseJson(body)
+        println(pages)
       case Left(errorCode) => println(s"An error occurred: $errorCode")
     }
   }
@@ -49,4 +54,15 @@ object Main extends App {
     "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=%s&srlimit=%d".format(encodedKeyword, limit)
   }
 
+  def parseJson(rawJson: String): Seq[WikiPage] = {
+    val json = Json.parse(rawJson)
+    val pagesJson = (json \ "query" \ "search").as[JsArray].value
+
+    pagesJson.map(pageJson => 
+      WikiPage(
+        title = (pageJson \ "title").as[String],
+        words = (pageJson \ "wordcount").as[Int]
+      )
+    )
+  }
 }
