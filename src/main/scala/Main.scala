@@ -1,4 +1,5 @@
 import scopt.OParser
+import scalaj.http.Http
 
 case class Config(limit: Int = 10, keyword: String = "")
 
@@ -25,6 +26,12 @@ object Main extends App {
     }
 
     OParser.parse(parser, args, Config())
+  }
+
+  def getPages(url: String): Either[Int, String] = {
+    val result = Http(url).asString
+    if (result.code == 200) Right(result.body)
+    else Left(result.code)
   }
 
   def run(config: Config): Unit = {
