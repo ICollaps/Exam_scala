@@ -37,8 +37,11 @@ object Main extends App {
   }
 
   def run(config: Config): Unit = {
-    println(config)
-    println(formatUrl(config.keyword, config.limit))
+    val url = formatUrl(config.keyword, config.limit)
+    getPages(url) match {
+      case Right(body) => println(body)
+      case Left(errorCode) => println(s"An error occurred: $errorCode")
+    }
   }
 
   def formatUrl(keyword: String, limit: Int): String = {
