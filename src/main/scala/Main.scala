@@ -1,4 +1,6 @@
 import scopt.OParser
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 case class Config(limit: Int = 10, keyword: String = "")
 
@@ -29,5 +31,12 @@ object Main extends App {
 
   def run(config: Config): Unit = {
     println(config)
+    println(formatUrl(config.keyword, config.limit))
   }
+
+  def formatUrl(keyword: String, limit: Int): String = {
+    val encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8.toString)
+    "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=&sroffset=0&list=search&srsearch=%s&srlimit=%d".format(encodedKeyword, limit)
+  }
+
 }
